@@ -1,0 +1,5 @@
+.idea
+main.go
+*.log
+logs
+github.com/lowl11/lazy-elastic
