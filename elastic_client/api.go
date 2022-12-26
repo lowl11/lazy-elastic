@@ -31,10 +31,14 @@ func (event *Event) DeleteIndex(indexName string) error {
 	return index_service.Delete(event.baseURL, indexName)
 }
 
-func (event *Event) Insert(indexName string, object any) error {
-	return data_service.Insert(object, event.baseURL, indexName)
+func (event *Event) Insert(id, indexName string, object any) error {
+	return data_service.Insert(id, object, event.baseURL, indexName)
 }
 
 func (event *Event) InsertMultiple(indexName string, objects []any) error {
 	return data_service.InsertMultiple(event.baseURL, indexName, objects)
+}
+
+func (event *Event) DeleteItem(indexName, id string) error {
+	return data_service.Delete(event.baseURL, indexName, id)
 }

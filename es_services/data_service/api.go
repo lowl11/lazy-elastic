@@ -8,14 +8,14 @@ import (
 	"net/http"
 )
 
-func Insert(object any, url, indexName string) error {
+func Insert(id string, object any, url, indexName string) error {
 	if object == nil {
 		return errors.New("object is null")
 	}
 
 	response, statusCode, err := requests.New(
 		http.MethodPost,
-		url+"/"+indexName+"/_doc",
+		url+"/"+indexName+"/_doc/"+id,
 		object).
 		Header("Content-Type", "application/json").
 		SendWithStatus()
@@ -69,6 +69,23 @@ func InsertMultiple(url, indexName string, objects []any) error {
 	response, status, err := requests.New(http.MethodPost, url+"/_bulk", bulkObjects).
 		Header("Content-Type", "application/x-ndjson").
 		SendWithStatus()
+	if err != nil {
+		return err
+	}
+
+	if status != http.StatusOK && status != http.StatusCreated {
+		errorObject := es_model.Error{}
+		if err = json.Unmarshal(response, &errorObject); err != nil {
+			return err
+		}
+		return errors.New(errorObject.Error.Reason)
+	}
+
+	return nil
+}
+
+func Delete(url, indexName, id string) error {
+	response, status, err := requests.New(http.MethodDelete, url+"/"+indexName+"/"+id, nil).SendWithStatus()
 	if err != nil {
 		return err
 	}
