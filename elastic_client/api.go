@@ -1,8 +1,9 @@
-package elastic
+package elastic_client
 
 import (
 	"github.com/lowl11/lazy-collection/type_list"
 	"github.com/lowl11/lazy-elastic/es_model"
+	"github.com/lowl11/lazy-elastic/es_services/data_service"
 	"github.com/lowl11/lazy-elastic/es_services/index_service"
 )
 
@@ -28,4 +29,12 @@ func (event *Event) CreateIndex(indexName string, mappings map[string]any) error
 
 func (event *Event) DeleteIndex(indexName string) error {
 	return index_service.Delete(event.baseURL, indexName)
+}
+
+func (event *Event) Insert(indexName string, object any) error {
+	return data_service.Insert(object, event.baseURL, indexName)
+}
+
+func (event *Event) InsertMultiple(indexName string, objects []any) error {
+	return data_service.InsertMultiple(event.baseURL, indexName, objects)
 }

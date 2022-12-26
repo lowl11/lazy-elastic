@@ -1,9 +1,13 @@
 package requests
 
 import (
+	"bytes"
+	"context"
+	"encoding/json"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"time"
 )
 
 func (service *Service) Header(key, value string) *Service {
@@ -38,8 +42,31 @@ func (service *Service) WithLogs() {
 }
 
 func (service *Service) Send() ([]byte, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+
+	var buffer *bytes.Buffer
+	if service.body != nil {
+		if stringValue, isString := service.body.(string); isString {
+			buffer = bytes.NewBuffer([]byte(stringValue))
+		} else {
+			bodyInBytes, err := json.Marshal(service.body)
+			if err != nil {
+				return nil, err
+			}
+
+			buffer = bytes.NewBuffer(bodyInBytes)
+		}
+	}
+
 	// create request
-	request, err := http.NewRequest(service.method, service.url, nil)
+	var request *http.Request
+	var err error
+	if service.body != nil {
+		request, err = http.NewRequestWithContext(ctx, service.method, service.url, buffer)
+	} else {
+		request, err = http.NewRequestWithContext(ctx, service.method, service.url, nil)
+	}
 	if err != nil {
 		return nil, err
 	}
