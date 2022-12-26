@@ -38,3 +38,12 @@ func Create(url, indexName string, mappings map[string]any) error {
 
 	return nil
 }
+
+func Delete(url, indexName string) error {
+	_, err := requests.New(http.MethodDelete, url+"/"+indexName, nil).Send()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

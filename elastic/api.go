@@ -25,3 +25,7 @@ func (event *Event) CreateIndex(indexName string, mappings map[string]any) error
 
 	return index_service.Create(event.baseURL, indexName, mappings)
 }
+
+func (event *Event) DeleteIndex(indexName string) error {
+	return index_service.Delete(event.baseURL, indexName)
+}
