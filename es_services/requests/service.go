@@ -16,7 +16,11 @@ type Service struct {
 
 	withLogs bool
 
-	request *http.Request
+	// result
+	request  *http.Request
+	status   int
+	response []byte
+	err      error
 }
 
 func New(method, url string, body any) *Service {

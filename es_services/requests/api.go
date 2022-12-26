@@ -38,6 +38,7 @@ func (service *Service) WithLogs() {
 }
 
 func (service *Service) Send() ([]byte, error) {
+	// create request
 	request, err := http.NewRequest(service.method, service.url, nil)
 	if err != nil {
 		return nil, err
@@ -45,12 +46,15 @@ func (service *Service) Send() ([]byte, error) {
 
 	service.request = request
 
+	// fill need data
 	service.fillCookies()
 	service.fillHeaders()
 	service.fillBasicAuth()
 
+	// get http client
 	client := service.httpClient()
 
+	// send request
 	response, err := client.Do(service.request)
 	if err != nil {
 		return nil, err
@@ -63,10 +67,23 @@ func (service *Service) Send() ([]byte, error) {
 		}
 	}()
 
+	// write status
+	service.status = response.StatusCode
+
+	// read response to bytes
 	responseInBytes, err := ioutil.ReadAll(response.Body)
 	if err != nil {
+		service.err = err
 		return nil, err
 	}
 
+	// write response
+	service.response = responseInBytes
+
 	return responseInBytes, nil
+}
+
+func (service *Service) SendWithStatus() ([]byte, int, error) {
+	_, _ = service.Send()
+	return service.response, service.status, service.err
 }

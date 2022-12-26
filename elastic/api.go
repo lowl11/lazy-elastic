@@ -7,7 +7,7 @@ import (
 )
 
 func (event *Event) AllIndices() ([]string, error) {
-	indices, err := index_service.AllIndices(event.baseURL + "/_cat/indices?format=json")
+	indices, err := index_service.All(event.baseURL + "/_cat/indices?format=json")
 	if err != nil {
 		return nil, err
 	}
@@ -16,4 +16,12 @@ func (event *Event) AllIndices() ([]string, error) {
 		Select(func(item es_model.IndexGet) string {
 			return item.Name
 		}).Slice(), nil
+}
+
+func (event *Event) CreateIndex(indexName string, mappings map[string]any) error {
+	if index_service.Exist(event.baseURL, indexName) {
+		return nil
+	}
+
+	return index_service.Create(event.baseURL, indexName, mappings)
 }

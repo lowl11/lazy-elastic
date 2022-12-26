@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func AllIndices(url string) ([]es_model.IndexGet, error) {
+func All(url string) ([]es_model.IndexGet, error) {
 	response, err := requests.New(http.MethodGet, url, nil).Send()
 	if err != nil {
 		return nil, err
@@ -19,4 +19,22 @@ func AllIndices(url string) ([]es_model.IndexGet, error) {
 	}
 
 	return list, nil
+}
+
+func Exist(url, indexName string) bool {
+	_, status, err := requests.New(http.MethodGet, url+"/"+indexName, nil).SendWithStatus()
+	if err != nil {
+		return false
+	}
+
+	return status != http.StatusNotFound
+}
+
+func Create(url, indexName string, mappings map[string]any) error {
+	_, err := requests.New(http.MethodPut, url+"/"+indexName, nil).Send()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
