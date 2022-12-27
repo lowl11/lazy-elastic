@@ -26,7 +26,7 @@ func Insert(id string, object any, url, indexName string) error {
 	if statusCode != http.StatusOK && statusCode != http.StatusCreated {
 		errorObject := es_model.Error{}
 		if err = json.Unmarshal(response, &errorObject); err != nil {
-			return err
+			return errors.New(string(response))
 		}
 		return errors.New(errorObject.Error.Reason)
 	}
@@ -76,7 +76,7 @@ func InsertMultiple(url, indexName string, objects []any) error {
 	if status != http.StatusOK && status != http.StatusCreated {
 		errorObject := es_model.Error{}
 		if err = json.Unmarshal(response, &errorObject); err != nil {
-			return err
+			return errors.New(string(response))
 		}
 		return errors.New(errorObject.Error.Reason)
 	}
@@ -93,7 +93,7 @@ func Delete(url, indexName, id string) error {
 	if status != http.StatusOK && status != http.StatusCreated {
 		errorObject := es_model.Error{}
 		if err = json.Unmarshal(response, &errorObject); err != nil {
-			return err
+			return errors.New(string(response))
 		}
 		return errors.New(errorObject.Error.Reason)
 	}
