@@ -5,7 +5,17 @@ import (
 	"github.com/lowl11/lazy-elastic/es_model"
 	"github.com/lowl11/lazy-elastic/es_services/data_service"
 	"github.com/lowl11/lazy-elastic/es_services/index_service"
+	"github.com/lowl11/lazy-elastic/es_services/requests"
+	"net/http"
 )
+
+func (event *Event) Ping() error {
+	if _, err := requests.New(http.MethodGet, event.baseURL, nil).Send(); err != nil {
+		return err
+	}
+
+	return nil
+}
 
 func (event *Event) AllIndices() ([]string, error) {
 	indices, err := index_service.All(event.baseURL + "/_cat/indices?format=json")
