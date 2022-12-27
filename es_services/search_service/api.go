@@ -7,7 +7,32 @@ import (
 	"github.com/lowl11/lazy-elastic/es_model"
 	"github.com/lowl11/lazy-elastic/es_services/requests"
 	"net/http"
+	"strconv"
 )
+
+func (service *Service[T]) Prefix(length int) *Service[T] {
+	if length > 2 {
+		service.prefixLength = length
+	}
+
+	return service
+}
+
+func (service *Service[T]) MaxExpansions(maxExpansions int) *Service[T] {
+	if maxExpansions > 1 {
+		service.maxExpansions = maxExpansions
+	}
+
+	return service
+}
+
+func (service *Service[T]) Fuzziness(fuzziness int) *Service[T] {
+	if fuzziness > 2 {
+		service.fuzziness = strconv.Itoa(fuzziness)
+	}
+
+	return service
+}
 
 func (service *Service[T]) All() *Service[T] {
 	service.body = map[string]any{
@@ -19,15 +44,35 @@ func (service *Service[T]) All() *Service[T] {
 	return service
 }
 
+func (service *Service[T]) Not(conditions map[string]any) *Service[T] {
+	service.body["query"].(map[string]any)["bool"].(map[string]any)["must_not"] = conditions
+	return service
+}
+
 func (service *Service[T]) MultiMatch(query string, fields []string) *Service[T] {
 	service.body = map[string]any{
 		"query": map[string]any{
-			"multi_match": map[string]any{
-				"fields": fields,
-				"query":  query,
+			"bool": map[string]any{
+				"must": []map[string]any{
+					{
+						"multi_match": map[string]any{
+							"fields": fields,
+							"query":  query,
+						},
+					},
+				},
 			},
 		},
 	}
+
+	// multi match configs
+	multiMatch := service.body["query"].(map[string]any)["bool"].(map[string]any)["must"].([]map[string]any)[0]
+
+	multiMatch["prefix_length"] = service.prefixLength
+	multiMatch["max_expansions"] = service.maxExpansions
+	multiMatch["fuzziness"] = service.fuzziness
+
+	service.body["query"].(map[string]any)["bool"].(map[string]any)["must"].([]map[string]any)[0] = multiMatch
 
 	return service
 }
