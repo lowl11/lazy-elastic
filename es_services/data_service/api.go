@@ -85,7 +85,7 @@ func InsertMultiple(url, indexName string, objects []any) error {
 }
 
 func Delete(url, indexName, id string) error {
-	response, status, err := requests.New(http.MethodDelete, url+"/"+indexName+"/"+id, nil).SendWithStatus()
+	response, status, err := requests.New(http.MethodDelete, url+"/"+indexName+"/_doc/"+id, nil).SendWithStatus()
 	if err != nil {
 		return err
 	}
