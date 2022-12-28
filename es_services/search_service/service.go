@@ -8,6 +8,7 @@ type Service[T any] struct {
 	maxExpansions int
 	fuzziness     string
 	size          int
+	from          int
 
 	body map[string]any
 
