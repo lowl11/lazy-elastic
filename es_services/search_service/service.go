@@ -7,6 +7,7 @@ type Service[T any] struct {
 	prefixLength  int
 	maxExpansions int
 	fuzziness     string
+	size          int
 
 	body map[string]any
 

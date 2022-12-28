@@ -33,6 +33,14 @@ func (service *Service[T]) Fuzziness(fuzziness int) *Service[T] {
 	return service
 }
 
+func (service *Service[T]) Size(size int) *Service[T] {
+	if size > 0 {
+		service.size = size
+	}
+
+	return service
+}
+
 func (service *Service[T]) All() *Service[T] {
 	service.body = map[string]any{
 		"query": map[string]any{
@@ -71,6 +79,10 @@ func (service *Service[T]) MultiMatch(query string, fields []string) *Service[T]
 				},
 			},
 		},
+	}
+
+	if service.size > 0 {
+		service.body["size"] = strconv.Itoa(service.size)
 	}
 
 	return service
