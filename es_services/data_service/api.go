@@ -34,7 +34,7 @@ func Insert(id string, object any, url, indexName string) error {
 	return nil
 }
 
-func InsertMultiple(url, indexName string, objects []any) error {
+func InsertMultiple(url, indexName string, objects []es_model.InsertMultipleData) error {
 	if objects == nil {
 		return errors.New("object is null")
 	}
@@ -43,20 +43,21 @@ func InsertMultiple(url, indexName string, objects []any) error {
 		return nil
 	}
 
-	insertModel := &es_model.InsertData{
-		Index: struct {
-			Name string `json:"_index"`
-			Type string `json:"_type"`
-		}{Name: indexName, Type: "_doc"},
-	}
-
-	insertObjectInBytes, err := json.Marshal(insertModel)
-	if err != nil {
-		return err
-	}
-
 	var bulkObjects string
 	for _, obj := range objects {
+		insertModel := &es_model.InsertData{
+			Index: struct {
+				ID   string `json:"_id"`
+				Name string `json:"_index"`
+				Type string `json:"_type"`
+			}{ID: obj.ID, Name: indexName, Type: "_doc"},
+		}
+
+		insertObjectInBytes, err := json.Marshal(insertModel)
+		if err != nil {
+			return err
+		}
+
 		objectInBytes, err := json.Marshal(obj)
 		if err != nil {
 			return err

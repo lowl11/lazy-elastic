@@ -45,7 +45,7 @@ func (event *Event) Insert(id, indexName string, object any) error {
 	return data_service.Insert(id, object, event.baseURL, indexName)
 }
 
-func (event *Event) InsertMultiple(indexName string, objects []any) error {
+func (event *Event) InsertMultiple(indexName string, objects []es_model.InsertMultipleData) error {
 	return data_service.InsertMultiple(event.baseURL, indexName, objects)
 }
 
