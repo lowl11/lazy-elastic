@@ -1,7 +1,6 @@
 package search_service
 
 import (
-	"bytes"
 	"encoding/json"
 	"github.com/lowl11/lazy-collection/type_list"
 	"github.com/lowl11/lazy-elastic/es_model"
@@ -44,12 +43,21 @@ func (service *Service[T]) All() *Service[T] {
 	return service
 }
 
-func (service *Service[T]) Not(conditions map[string]any) *Service[T] {
-	service.body["query"].(map[string]any)["bool"].(map[string]any)["must_not"] = conditions
+func (service *Service[T]) Not(conditions ...map[string]any) *Service[T] {
+	//service.body["query"].(map[string]any)["bool"].(map[string]any)["must_not"] = conditions
+	service.body["query"].(map[string]any)["bool"].(map[string]any)["must_not"] = []map[string]any{
+		{
+			"bool": map[string]any{
+				"filter": conditions,
+			},
+		},
+	}
 	return service
 }
 
 func (service *Service[T]) MultiMatch(query string, fields []string) *Service[T] {
+	service.isMultiMatch = true
+
 	service.body = map[string]any{
 		"query": map[string]any{
 			"bool": map[string]any{
@@ -65,28 +73,17 @@ func (service *Service[T]) MultiMatch(query string, fields []string) *Service[T]
 		},
 	}
 
-	// multi match configs
-	multiMatch := service.body["query"].(map[string]any)["bool"].(map[string]any)["must"].([]map[string]any)[0]
-
-	multiMatch["prefix_length"] = service.prefixLength
-	multiMatch["max_expansions"] = service.maxExpansions
-	multiMatch["fuzziness"] = service.fuzziness
-
-	service.body["query"].(map[string]any)["bool"].(map[string]any)["must"].([]map[string]any)[0] = multiMatch
-
 	return service
 }
 
 func (service *Service[T]) Search() ([]T, error) {
-	queryInBytes, err := json.Marshal(service.body)
-	if err != nil {
-		return nil, err
-	}
+	service.fillAttributes()
 
 	response, err := requests.New(
 		http.MethodPost,
 		service.baseURl+"/"+service.indexName+"/_search",
-		bytes.NewBuffer(queryInBytes)).
+		service.body,
+	).
 		Header("Content-Type", "application/json").
 		Send()
 	if err != nil {

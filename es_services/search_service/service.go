@@ -9,6 +9,8 @@ type Service[T any] struct {
 	fuzziness     string
 
 	body map[string]any
+
+	isMultiMatch bool
 }
 
 func New[T any](baseURL, indexName string) *Service[T] {
