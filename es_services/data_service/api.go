@@ -58,7 +58,7 @@ func InsertMultiple(url, indexName string, objects []es_model.InsertMultipleData
 			return err
 		}
 
-		objectInBytes, err := json.Marshal(obj)
+		objectInBytes, err := json.Marshal(obj.Object)
 		if err != nil {
 			return err
 		}
