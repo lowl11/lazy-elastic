@@ -1,11 +1,18 @@
 package elastic_client
 
+import (
+	"github.com/lowl11/lazy-elastic/internal/services/data_service"
+	"github.com/lowl11/lazy-elastic/internal/services/index_service"
+)
+
 type Event struct {
-	baseURL string
+	indexService *index_service.Service
+	dataService  *data_service.Service
 }
 
-func Create(baseURL string) *Event {
+func Create(url string) *Event {
 	return &Event{
-		baseURL: baseURL,
+		indexService: index_service.New(url),
+		dataService:  data_service.New(url),
 	}
 }

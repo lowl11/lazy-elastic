@@ -4,21 +4,19 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/lowl11/lazy-elastic/es_model"
-	"github.com/lowl11/lazy-elastic/es_services/requests"
+	"github.com/lowl11/lazy-elastic/internal/services/requests"
 	"net/http"
 )
 
-func Insert(id string, object any, url, indexName string) error {
+func (service *Service) Insert(id string, object any, indexName string) error {
 	if object == nil {
 		return errors.New("object is null")
 	}
 
-	response, statusCode, err := requests.New(
-		http.MethodPost,
-		url+"/"+indexName+"/_doc/"+id,
-		object).
+	response, statusCode, err := requests.
+		New(http.MethodPost, service.url+"/"+indexName+"/_doc/"+id, object).
 		Header("Content-Type", "application/json").
-		SendWithStatus()
+		SendStatus()
 	if err != nil {
 		return err
 	}
@@ -34,7 +32,7 @@ func Insert(id string, object any, url, indexName string) error {
 	return nil
 }
 
-func InsertMultiple(url, indexName string, objects []es_model.InsertMultipleData) error {
+func (service *Service) InsertMultiple(indexName string, objects []es_model.InsertMultipleData) error {
 	if objects == nil {
 		return errors.New("object is null")
 	}
@@ -67,9 +65,10 @@ func InsertMultiple(url, indexName string, objects []es_model.InsertMultipleData
 		bulkObjects += string(objectInBytes) + "\n"
 	}
 
-	response, status, err := requests.New(http.MethodPost, url+"/_bulk", bulkObjects).
+	response, status, err := requests.
+		New(http.MethodPost, service.url+"/_bulk", bulkObjects).
 		Header("Content-Type", "application/x-ndjson").
-		SendWithStatus()
+		SendStatus()
 	if err != nil {
 		return err
 	}
@@ -85,8 +84,10 @@ func InsertMultiple(url, indexName string, objects []es_model.InsertMultipleData
 	return nil
 }
 
-func Delete(url, indexName, id string) error {
-	response, status, err := requests.New(http.MethodDelete, url+"/"+indexName+"/_doc/"+id, nil).SendWithStatus()
+func (service *Service) Delete(indexName, id string) error {
+	response, status, err := requests.
+		New(http.MethodDelete, service.url+"/"+indexName+"/_doc/"+id, nil).
+		SendStatus()
 	if err != nil {
 		return err
 	}

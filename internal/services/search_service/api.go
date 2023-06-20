@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"github.com/lowl11/lazy-collection/type_list"
 	"github.com/lowl11/lazy-elastic/es_model"
-	"github.com/lowl11/lazy-elastic/es_services/requests"
+	"github.com/lowl11/lazy-elastic/internal/services/requests"
 	"net/http"
 	"strconv"
 )
